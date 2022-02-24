@@ -25,7 +25,6 @@ public class Main {
 
     static {
         MAIL_PROPERTIES.setProperty("mail.smtp.host", "0.0.0.0");
-        MAIL_PROPERTIES.setProperty("mail.smtp.password", "1234");
         MAIL_PROPERTIES.setProperty("mail.smtp.port", "18000");
     }
 
