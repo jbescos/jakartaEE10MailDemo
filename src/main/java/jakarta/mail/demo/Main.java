@@ -1,11 +1,17 @@
 package jakarta.mail.demo;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Properties;
 
 import jakarta.mail.BodyPart;
+import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
+import jakarta.mail.Store;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
@@ -19,16 +25,18 @@ public class Main {
 
     static {
         MAIL_PROPERTIES.setProperty("mail.smtp.host", "0.0.0.0");
+        MAIL_PROPERTIES.setProperty("mail.smtp.password", "1234");
         MAIL_PROPERTIES.setProperty("mail.smtp.port", "18000");
     }
 
-    public static void main(String[] args) throws AddressException, MessagingException {
+    public static void main(String[] args) throws AddressException, MessagingException, IOException {
         Session session = Session.getDefaultInstance(MAIL_PROPERTIES);
-        session.setDebug(true);
-        sendSmtpMail(session, "from@demo.com", "to@demo.com");
+//        session.setDebug(true);
+        sendEmail(session, "user01@james.local", "user02@james.local");
+        readEmails(session, "user02@james.local");
     }
 
-    private static void sendSmtpMail(Session session, String from, String to) throws AddressException, MessagingException {
+    private static void sendEmail(Session session, String from, String to) throws AddressException, MessagingException {
         MimeMessage message = new MimeMessage(session);
         message.setFrom(new InternetAddress(from));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
@@ -37,5 +45,21 @@ public class Main {
         messageBodyPart.setText("This is the body of the message");
         message.setContent(new MimeMultipart(messageBodyPart));
         Transport.send(message);
+        System.out.println("Email sent from " + from + " to " + to);
+    }
+
+    private static void readEmails(Session session, String userMail) throws MessagingException, IOException {
+        String folderName = "INBOX";
+        try (Store store = session.getStore("imap")) {
+            store.connect("0.0.0.0", 18004, userMail, "1234");
+            System.out.println(folderName + " of " + userMail);
+            Folder folder = store.getFolder(folderName);
+            folder.open(Folder.READ_WRITE);
+            System.out.println("Message count: " + folder.getMessageCount());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (Message message : folder.getMessages()) {
+                System.out.println(format.format(message.getSentDate()) + " | Subject: " + message.getSubject() + " | Recipients: " + Arrays.asList(message.getAllRecipients()));
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# docker exec -it mail-demo /bin/bash
+
 cd /root 
 /root/startup.sh | tee /root/mailserver.log &
 sleep 120
