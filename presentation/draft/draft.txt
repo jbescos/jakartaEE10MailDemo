@@ -1,0 +1,44 @@
+Jakarta Mail 2.1 / Angus Mail 1.0
+
+ 1. What is Jakarta Mail
+ 2. What is new in Jakarta Mail 2.1
+ 3. What is Angus Mail
+ 4. Demo
+ 5. References
+
+Jakarta Mail 2.1 / Angus Mail 1.0
+    1. What is Jakarta Mail
+The Jakarta Mail API provides a set of abstract classes defining objects that comprise a mail system. The API defines classes like Message, Store and Transport. The API can be extended and can be subclassed to provide new protocols and to add functionality when necessary.
+In addition, the API provides concrete subclasses of the abstract classes. These subclasses, including MimeMessage and MimeBodyPart, implement widely used Internet mail protocols and conform to specifications RFC822 and RFC2045. They are ready to be used in application development.
+
+Jakarta Mail 2.1 / Angus Mail 1.0
+    1. What is Jakarta Mail
+components.png
+Message: Defines a set of attributes and a content for a mail message. For example: subject, recipients, content type, attachment, etc.
+Transport: Models the transport agent that routes a message to its destination addresses.
+Store: The Store class defines a database that holds a Folder hierarchy and the messages within. Folders contain messages or other folders.
+Session: Factory to instance configured Transport and Store configured objects.
+
+Jakarta Mail 2.1 / Angus Mail 1.0
+    2. What is new in Jakarta Mail 2.1
+
+jakarta.mail.util.StreamProvider interface
+
+It contains the methods to instance different encoders/decoders and other streams required by the API.
+Encoders/Decoders: base64, b, q, binary, 7bit, 8bit, quoted-printable, uuencode, x-uuencode, x-uue.
+Service lookup is used to find implementations of this interface. Which means that the implementations of this methods has to be done by third party Jakarta Mail implementations.
+
+Jakarta Mail 2.1 / Angus Mail 1.0
+    3. What is Angus Mail
+Angus is the default Jakarta Mail implementation, that comes up to implement the new interface jakarta.mail.util.StreamProvider.
+
+Jakarta Mail 2.1 / Angus Mail 1.0
+    4. Demo
+https://github.com/jbescos/jakartaEE10MailDemo
+
+Jakarta Mail 2.1 / Angus Mail 1.0
+    5. References
+Mail API Specification: https://github.com/eclipse-ee4j/mail-spec
+Mail API: https://github.com/eclipse-ee4j/mail
+Angus Mail: https://github.com/eclipse-ee4j/angus-mail
+Demo: https://github.com/jbescos/jakartaEE10MailDemo
