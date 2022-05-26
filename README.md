@@ -38,7 +38,7 @@ Then you have to compile the demo with Maven:
 
 And execute it in this way:
 
-    $ java -jar target/demo10-1.0.jar
+    $ java -jar target/demo10-1.0.jar 'Hello, this is a sample email message'
 
 In case you are having any issue with the mail server, you can uncomment the line of [Main](src/main/java/jakarta/mail/demo/Main.java)
 
