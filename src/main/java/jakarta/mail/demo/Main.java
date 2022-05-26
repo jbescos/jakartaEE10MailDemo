@@ -28,10 +28,11 @@ public class Main {
         MAIL_PROPERTIES.setProperty("mail.smtp.port", "18000");
     }
 
-    public static void main(String[] args) throws AddressException, MessagingException, IOException {
+    public static void main(String[] args) throws AddressException, MessagingException, IOException, InterruptedException {
         Session session = Session.getDefaultInstance(MAIL_PROPERTIES);
 //        session.setDebug(true);
         sendEmail(session, "user01@james.local", "user02@james.local");
+        Thread.sleep(1000L);
         readEmails(session, "user02@james.local");
     }
 
@@ -40,9 +41,7 @@ public class Main {
         message.setFrom(new InternetAddress(from));
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
         message.setSubject("Hello Demo!");
-        BodyPart messageBodyPart = new MimeBodyPart();
-        messageBodyPart.setText("This is the body of the message");
-        message.setContent(new MimeMultipart(messageBodyPart));
+        message.setText("This is the body of the message");
         Transport.send(message);
         System.out.println("Email sent from " + from + " to " + to);
     }
@@ -57,7 +56,11 @@ public class Main {
             System.out.println("Message count: " + folder.getMessageCount());
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             for (Message message : folder.getMessages()) {
-                System.out.println(format.format(message.getSentDate()) + " | Subject: " + message.getSubject() + " | Recipients: " + Arrays.asList(message.getAllRecipients()));
+                System.out.println(format.format(message.getSentDate()) 
+                        + " | Subject: " + message.getSubject() 
+                        + " | From: " + Arrays.asList(message.getFrom()) 
+                        + " | Recipients: " + Arrays.asList(message.getAllRecipients())
+                        + " | Content: " + message.getContent());
             }
         }
     }
