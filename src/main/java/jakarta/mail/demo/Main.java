@@ -12,11 +12,12 @@ import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
 import jakarta.mail.BodyPart;
+import jakarta.mail.Flags;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
-import jakarta.mail.Part;
+import jakarta.mail.NoSuchProviderException;
 import jakarta.mail.Session;
 import jakarta.mail.Store;
 import jakarta.mail.Transport;
@@ -41,7 +42,7 @@ public class Main {
 //        MAIL_PROPERTIES.setProperty("mail.pop3.disabletop", "false");
 //        MAIL_PROPERTIES.setProperty("mail.pop3.forgettopheaders", "false");
 //        MAIL_PROPERTIES.setProperty("mail.pop3.auth", "false");
-        MAIL_PROPERTIES.setProperty("mail.debug", "true");
+//        MAIL_PROPERTIES.setProperty("mail.debug", "true");
     }
 
     public static void main(String[] args)
@@ -50,6 +51,7 @@ public class Main {
             throw new IllegalArgumentException("Need one argument with the body message");
         }
         Session session = Session.getDefaultInstance(MAIL_PROPERTIES);
+        removeAll(session, "user02@james.local", "imap");
         sendEmail(session, "user01@james.local", "user02@james.local", args[0]);
         Thread.sleep(1000L);
         readEmails(session, "user02@james.local", "imap");
@@ -88,11 +90,43 @@ public class Main {
             Folder folder = store.getFolder("INBOX");
             folder.open(Folder.READ_WRITE);
             System.out.println(protocol + " -> Message count: " + folder.getMessageCount());
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             for (Message message : folder.getMessages()) {
-                System.out.print(format.format(message.getSentDate()) + " | Subject: " + message.getSubject()
-                        + " | From: " + Arrays.asList(message.getFrom()) + " | Recipients: "
-                        + Arrays.asList(message.getAllRecipients()) + " | Content: " + message.getContent());
+                System.out.println(print(message));
+            }
+            folder.close();
+        }
+    }
+    
+    private static String print(Message message) throws MessagingException, IOException {
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        StringBuilder builder = new StringBuilder();
+        builder.append(format.format(message.getSentDate())).append("|")
+        .append("Subject:").append(message.getSubject()).append("|")
+        .append("From:").append(Arrays.asList(message.getFrom())).append("|")
+        .append("Recipients:").append(Arrays.asList(message.getAllRecipients())).append("|")
+        .append("Content-Type:").append(message.getContentType()).append("|")
+        .append("Content:");
+        if (message.getContent() instanceof Multipart) {
+            Multipart multipart = (Multipart) message.getContent();
+            builder.append("[");
+            for (int i = 0; i < multipart.getCount(); i++) {
+                BodyPart bodyPart = multipart.getBodyPart(i);
+                builder.append(bodyPart.getContentType()).append(" - ").append(bodyPart.getContent()).append(",");
+            }
+            builder.append("]");
+        } else {
+            builder.append(message.getContent());
+        }
+        return builder.toString();
+    }
+    
+    private static void removeAll(Session session, String userMail, String protocol) throws NoSuchProviderException, MessagingException {
+        try (Store store = session.getStore(protocol)) {
+            store.connect(userMail, "1234");
+            Folder folder = store.getFolder("INBOX");
+            folder.open(Folder.READ_WRITE);
+            for (Message message : folder.getMessages()) {
+                message.setFlag(Flags.Flag.DELETED, true);
             }
             folder.close();
         }
