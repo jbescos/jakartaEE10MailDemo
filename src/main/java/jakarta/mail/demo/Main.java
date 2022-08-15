@@ -25,6 +25,13 @@ public class Main {
         MAIL_PROPERTIES.setProperty("mail.smtp.port", "18000");
         MAIL_PROPERTIES.setProperty("mail.imap.host", "0.0.0.0");
         MAIL_PROPERTIES.setProperty("mail.imap.port", "18004");
+        MAIL_PROPERTIES.setProperty("mail.pop3.host", "0.0.0.0");
+        MAIL_PROPERTIES.setProperty("mail.pop3.port", "18007");
+//        MAIL_PROPERTIES.setProperty("mail.pop3.disablecapa", "true");
+//        MAIL_PROPERTIES.setProperty("mail.pop3.disabletop", "false");
+//        MAIL_PROPERTIES.setProperty("mail.pop3.forgettopheaders", "false");
+        MAIL_PROPERTIES.setProperty("mail.pop3.auth", "false");
+//        MAIL_PROPERTIES.setProperty("mail.debug", "true");
     }
 
     public static void main(String[] args) throws AddressException, MessagingException, IOException, InterruptedException {
@@ -32,10 +39,10 @@ public class Main {
             throw new IllegalArgumentException("Need one argument with the body message");
         }
         Session session = Session.getDefaultInstance(MAIL_PROPERTIES);
-//        session.setDebug(true);
         sendEmail(session, "user01@james.local", "user02@james.local", args[0]);
         Thread.sleep(1000L);
-        readEmails(session, "user02@james.local");
+        readEmails(session, "user02@james.local", "imap");
+        readEmails(session, "user02@james.local", "pop3");
     }
 
     private static void sendEmail(Session session, String from, String to, String text) throws AddressException, MessagingException {
@@ -48,12 +55,12 @@ public class Main {
         System.out.println("Email sent from " + from + " to " + to);
     }
 
-    private static void readEmails(Session session, String userMail) throws MessagingException, IOException {
-        try (Store store = session.getStore("imap")) {
+    private static void readEmails(Session session, String userMail, String protocol) throws MessagingException, IOException {
+        try (Store store = session.getStore(protocol)) {
             store.connect(userMail, "1234");
             Folder folder = store.getFolder("INBOX");
             folder.open(Folder.READ_ONLY);
-            System.out.println("Message count: " + folder.getMessageCount());
+            System.out.println(protocol + " -> Message count: " + folder.getMessageCount());
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             for (Message message : folder.getMessages()) {
                 System.out.print(format.format(message.getSentDate()) 
@@ -62,6 +69,7 @@ public class Main {
                         + " | Recipients: " + Arrays.asList(message.getAllRecipients())
                         + " | Content: " + message.getContent());
             }
+            folder.close();
         }
     }
 }
