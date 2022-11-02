@@ -1,5 +1,7 @@
 # Jakarta Mail - Angus Demo
 
+[![IMAGE Jakarta Mail - Angus Demo](https://img.youtube.com/vi/gsNwC7K8URk/0.jpg)](https://www.youtube.com/watch?v=gsNwC7K8URk)
+
 This demo shows a simple example about:
 * How to send one email with SMTP protocol.
 * How to access the inbox folder with IMAP protocol.
